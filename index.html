@@ -346,6 +346,33 @@
       transition: width .25s ease;
     }
 
+    .relics {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .relic {
+      min-height: 58px;
+      display: grid;
+      place-items: center;
+      padding: 8px;
+      border: 3px solid var(--line);
+      border-radius: 6px;
+      background: #f1eee5;
+      color: var(--muted);
+      text-align: center;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1.25;
+    }
+
+    .relic.on {
+      background: #fff3bd;
+      color: var(--ink);
+      box-shadow: inset 0 0 0 3px rgba(255,255,255,.4);
+    }
+
     .log {
       min-height: 150px;
       max-height: 220px;
@@ -401,6 +428,7 @@
       .hero-row { grid-template-columns: 1fr; }
       .hero-row img { width: 112px; }
       .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .relics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .controls { grid-template-columns: 1fr; }
       .row { grid-template-columns: 1fr; }
       .row button { width: 100%; }
@@ -484,6 +512,12 @@
         <p class="summary" id="bossHpText">HP 999 / 999</p>
       </div>
 
+      <div class="quest">
+        <h2 id="chapterTitle">旅の目的</h2>
+        <p class="summary" id="chapterText">まずは守護者豆腐へ進化し、バグの魔王へ挑みましょう。</p>
+        <div class="relics" id="relics"></div>
+      </div>
+
       <div>
         <h2>冒険ログ</h2>
         <div class="log" id="log" aria-live="polite"></div>
@@ -509,6 +543,14 @@
       { name: "守護者豆腐", title: "最終形態: 守護者豆腐", idea: 900, power: 160, rate: 3.8, body: "#fffaf0", shirt: "#273745", accent: "#e8b94d", scale: 1.12 }
     ];
 
+    const bossRoad = [
+      { name: "バグの魔王", hp: 999, reward: "冷奴の紋章", effect: "ひらめき生産 +15%", story: "最初の平和なデプロイが戻った。けれどログの奥で、まだ警告が光っている。" },
+      { name: "仕様変更ドラゴン", hp: 1450, reward: "仕様書のかけら", effect: "コード修行のひらめき +6", story: "突然の仕様変更を乗り越えた。豆腐は要件を読む目を手に入れた。" },
+      { name: "締切の巨人", hp: 2150, reward: "徹夜しない時計", effect: "毎秒生産 +20%", story: "焦りに飲まれず勝った。急ぐ時ほど、豆腐は崩れない。" },
+      { name: "闇レビューア", hp: 3200, reward: "やさしいレビュー印", effect: "攻撃力 +25%", story: "厳しい指摘を力に変えた。豆腐の角は少し丸く、芯は強くなった。" },
+      { name: "虚無の本番障害", hp: 4800, reward: "伝説の白皿", effect: "真エンド解放", story: "本番障害を鎮めた。豆腐は世界を救い、次の朝ごはんへ歩き出す。" }
+    ];
+
     const state = {
       ideas: 0,
       hunger: 70,
@@ -521,6 +563,7 @@
       lastTick: Date.now(),
       bossHp: 999,
       wins: 0,
+      endingSeen: false,
       log: ["小さな豆腐が目を覚ました。いつかバグの魔王を倒す旅が始まる。"]
     };
 
@@ -565,8 +608,29 @@
       return (state.hunger + state.focus + state.courage + state.clean) / 400;
     }
 
+    function relicCount() {
+      return Math.min(state.wins, bossRoad.length);
+    }
+
+    function currentBoss() {
+      if (state.wins < bossRoad.length) return bossRoad[state.wins];
+      const loop = state.wins - bossRoad.length + 1;
+      return {
+        name: `帰ってきたバグの魔王 Lv.${loop}`,
+        hp: 5200 + loop * 1450,
+        reward: "周回の湯気",
+        effect: "勝利ごとに生産と攻撃が上昇",
+        story: "平和な日々にも小さなバグは生まれる。守護者豆腐の旅は続く。"
+      };
+    }
+
+    function bossMaxHp() {
+      return currentBoss().hp;
+    }
+
     function rate() {
-      return forms[state.form].rate * (.45 + careScore()) * (state.wins ? 1 + state.wins * .15 : 1);
+      const relicBoost = 1 + relicCount() * .15 + Math.max(0, state.wins - bossRoad.length) * .08;
+      return forms[state.form].rate * (.45 + careScore()) * relicBoost;
     }
 
     function tick(seconds, offline = false) {
@@ -613,7 +677,7 @@
       if (kind === "code") {
         state.focus = clamp(state.focus + 22);
         state.hunger = clamp(state.hunger - 5);
-        state.ideas += 8 + state.form * 5;
+        state.ideas += 8 + state.form * 5 + (state.wins >= 2 ? 6 : 0);
         addLog("コード修行でひらめきが増えた。");
         pop("+ひらめき");
       }
@@ -672,7 +736,8 @@
         return;
       }
 
-      const attack = Math.floor(34 + state.power * .9 + state.courage * .8 + Math.random() * 34);
+      const attackBoost = state.wins >= 4 ? 1.25 : 1;
+      const attack = Math.floor((34 + state.power * .9 + state.courage * .8 + Math.random() * 34) * attackBoost);
       const counter = Math.floor(10 + Math.random() * 22);
       state.bossHp = Math.max(0, state.bossHp - attack);
       state.hunger = clamp(state.hunger - 10);
@@ -682,16 +747,24 @@
       pop(`-${attack}`);
 
       if (state.bossHp <= 0) {
+        const defeated = currentBoss();
         state.wins += 1;
         state.ideas += 500 + state.wins * 250;
         state.power += 20;
-        state.bossHp = 999 + state.wins * 350;
+        state.bossHp = bossMaxHp();
         state.hunger = 100;
         state.focus = 100;
         state.courage = 100;
         state.clean = 100;
-        addLog("バグの魔王を倒した。世界に平和なデプロイが戻った。");
-        toast("ボス撃破");
+        addLog(`${defeated.name}を倒した。${defeated.reward}を手に入れた。`);
+        addLog(defeated.story);
+        if (state.wins === bossRoad.length && !state.endingSeen) {
+          state.endingSeen = true;
+          addLog("真エンド: 守護者豆腐は白い皿の上で、世界一静かな勝利ポーズを決めた。");
+          toast("真エンド到達");
+        } else {
+          toast(`${defeated.reward} 獲得`);
+        }
       }
       render();
       save();
@@ -732,17 +805,20 @@
     }
 
     function bossSvg() {
+      const phase = Math.min(state.wins, bossRoad.length - 1);
+      const colors = ["#4a2230", "#3a315f", "#6b3d2e", "#2b2b3f", "#1f252b"];
+      const accent = ["#cf533d", "#7f6edb", "#e8b94d", "#7b8794", "#d8ecbb"];
       return `
-        <rect x="22" y="28" width="76" height="64" fill="#4a2230" stroke="#2b2926" stroke-width="5"/>
-        <rect x="14" y="46" width="20" height="16" fill="#cf533d" stroke="#2b2926" stroke-width="4"/>
-        <rect x="86" y="46" width="20" height="16" fill="#cf533d" stroke="#2b2926" stroke-width="4"/>
+        <rect x="22" y="28" width="76" height="64" fill="${colors[phase]}" stroke="#2b2926" stroke-width="5"/>
+        <rect x="14" y="46" width="20" height="16" fill="${accent[phase]}" stroke="#2b2926" stroke-width="4"/>
+        <rect x="86" y="46" width="20" height="16" fill="${accent[phase]}" stroke="#2b2926" stroke-width="4"/>
         <rect x="38" y="48" width="12" height="14" fill="#fffaf0"/>
         <rect x="70" y="48" width="12" height="14" fill="#fffaf0"/>
         <rect x="42" y="52" width="8" height="10" fill="#2b2926"/>
         <rect x="70" y="52" width="8" height="10" fill="#2b2926"/>
-        <rect x="45" y="74" width="30" height="6" fill="#e8b94d"/>
-        <rect x="24" y="18" width="14" height="18" fill="#cf533d" stroke="#2b2926" stroke-width="4"/>
-        <rect x="82" y="18" width="14" height="18" fill="#cf533d" stroke="#2b2926" stroke-width="4"/>
+        <rect x="45" y="74" width="30" height="6" fill="${accent[phase]}"/>
+        <rect x="24" y="18" width="14" height="18" fill="${accent[phase]}" stroke="#2b2926" stroke-width="4"/>
+        <rect x="82" y="18" width="14" height="18" fill="${accent[phase]}" stroke="#2b2926" stroke-width="4"/>
       `;
     }
 
@@ -757,7 +833,9 @@
     function render() {
       const form = forms[state.form];
       const next = forms[state.form + 1];
-      const maxBossHp = 999 + state.wins * 350;
+      const boss = currentBoss();
+      const maxBossHp = bossMaxHp();
+      if (!Number.isFinite(state.bossHp) || state.bossHp > maxBossHp) state.bossHp = maxBossHp;
       $("tofuName").textContent = form.name;
       $("clock").textContent = new Date().toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" });
       $("ageText").textContent = `${Math.floor((Date.now() - state.bornAt) / 86400000)}日目`;
@@ -786,9 +864,21 @@
         $("evolveBtn").disabled = true;
       }
 
+      $("bossTitle").textContent = `第${state.wins + 1}章ボス: ${boss.name}`;
+      $("bossHint").textContent = state.form < forms.length - 1
+        ? "最終形態になると挑戦できます。倒すたびに次の章とごほうびが解放されます。"
+        : `勝つと「${boss.reward}」を獲得。効果: ${boss.effect}`;
       $("fightBtn").disabled = state.form < forms.length - 1;
       $("bossHpBar").style.width = `${(state.bossHp / maxBossHp) * 100}%`;
       $("bossHpText").textContent = `HP ${fmt(state.bossHp)} / ${fmt(maxBossHp)}`;
+      $("chapterTitle").textContent = state.endingSeen ? "真エンド後の旅" : `第${Math.min(state.wins + 1, bossRoad.length)}章`;
+      $("chapterText").textContent = state.endingSeen
+        ? "真エンド到達済み。ここからは周回ボスを倒して、守護者豆腐をどこまで強くできるかを競います。"
+        : boss.story;
+      $("relics").innerHTML = bossRoad.map((item, index) => {
+        const on = state.wins > index;
+        return `<div class="relic ${on ? "on" : ""}">${on ? item.reward : "未入手"}<br>${on ? item.effect : `第${index + 1}章`}</div>`;
+      }).join("");
     }
 
     $("feedBtn").addEventListener("click", () => action("feed"));
