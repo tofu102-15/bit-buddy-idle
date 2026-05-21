@@ -3,22 +3,23 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bit Buddy Idle</title>
+  <title>Tofu Quest Idle</title>
   <style>
     :root {
       color-scheme: light;
-      --ink: #18202a;
-      --muted: #596574;
-      --paper: #f6f1e4;
-      --case: #d9474f;
-      --case-dark: #9a2634;
-      --screen: #b9d58a;
-      --screen-dark: #213620;
-      --line: #2c3138;
-      --blue: #306ca8;
-      --teal: #2b8176;
-      --yellow: #f0bd49;
-      --shadow: rgba(24, 32, 42, .16);
+      --ink: #1f252b;
+      --muted: #5f6972;
+      --paper: #fffaf0;
+      --case: #2d6f7f;
+      --case-dark: #1b4550;
+      --screen: #d8ecbb;
+      --screen-dark: #263d2b;
+      --line: #2b2926;
+      --accent: #cf533d;
+      --gold: #e8b94d;
+      --blue: #2b5f91;
+      --cream: #f3ead8;
+      --shadow: rgba(31, 37, 43, .18);
     }
 
     * { box-sizing: border-box; }
@@ -26,45 +27,46 @@
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: "Trebuchet MS", "Yu Gothic UI", "Meiryo", sans-serif;
+      font-family: "Yu Gothic UI", "Meiryo", "Trebuchet MS", sans-serif;
       color: var(--ink);
       background:
-        linear-gradient(90deg, rgba(24,32,42,.06) 1px, transparent 1px),
-        linear-gradient(rgba(24,32,42,.06) 1px, transparent 1px),
-        #f4d98b;
+        linear-gradient(90deg, rgba(31,37,43,.06) 1px, transparent 1px),
+        linear-gradient(rgba(31,37,43,.06) 1px, transparent 1px),
+        #f2d57b;
       background-size: 24px 24px;
-      display: grid;
-      place-items: center;
-      padding: 20px;
+      padding: 18px;
     }
 
     main {
-      width: min(1100px, 100%);
+      width: min(1180px, 100%);
+      margin: 0 auto;
       display: grid;
-      grid-template-columns: minmax(310px, 420px) minmax(280px, 1fr);
+      grid-template-columns: minmax(320px, 430px) minmax(300px, 1fr);
       gap: 18px;
-      align-items: stretch;
+      align-items: start;
+    }
+
+    .device,
+    .panel {
+      border: 4px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 0 rgba(31,37,43,.18);
     }
 
     .device {
       background: var(--case);
-      border: 4px solid var(--line);
-      border-radius: 8px;
-      box-shadow: 0 18px 0 var(--case-dark), 0 30px 50px var(--shadow);
-      padding: 18px;
+      padding: 16px;
       display: grid;
       gap: 14px;
-      min-height: 680px;
     }
 
     .brand {
+      color: #fff8df;
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      color: #fff8dc;
-      text-transform: uppercase;
+      gap: 12px;
       font-weight: 900;
-      letter-spacing: 0;
+      text-transform: uppercase;
       font-size: 14px;
     }
 
@@ -77,28 +79,28 @@
     .speaker i {
       width: 8px;
       height: 8px;
+      border: 1px solid #0c2f37;
       border-radius: 50%;
-      background: #7d1f2b;
-      border: 1px solid #621722;
+      background: #153a43;
     }
 
     .screen {
+      min-height: 360px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      position: relative;
+      overflow: hidden;
       background: var(--screen);
       border: 5px solid var(--line);
       border-radius: 6px;
-      box-shadow: inset 0 0 0 5px rgba(255,255,255,.18);
-      min-height: 330px;
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      overflow: hidden;
-      position: relative;
+      box-shadow: inset 0 0 0 5px rgba(255,255,255,.2);
     }
 
     .screen::before {
       content: "";
       position: absolute;
       inset: 0;
-      background: repeating-linear-gradient(0deg, rgba(33,54,32,.08) 0 2px, transparent 2px 6px);
+      background: repeating-linear-gradient(0deg, rgba(38,61,43,.08) 0 2px, transparent 2px 6px);
       pointer-events: none;
       mix-blend-mode: multiply;
     }
@@ -111,67 +113,63 @@
       justify-content: space-between;
       gap: 10px;
       color: var(--screen-dark);
-      font-family: "Courier New", monospace;
-      font-weight: 900;
-      font-size: 13px;
+      font: 900 13px/1.2 "Courier New", monospace;
     }
 
-    .pet-stage {
+    .stage {
       z-index: 1;
       position: relative;
       display: grid;
-      place-items: end center;
-      padding: 0 12px 28px;
-      min-height: 230px;
+      place-items: center;
+      min-height: 260px;
+      padding: 20px 12px 28px;
     }
 
-    .pet-svg {
-      width: min(74%, 240px);
-      aspect-ratio: 1;
-      image-rendering: pixelated;
-      filter: drop-shadow(8px 10px 0 rgba(33,54,32,.18));
-      animation: bop 1.7s steps(2, end) infinite;
-    }
-
-    .poop {
+    .enemy {
       position: absolute;
-      left: 34px;
-      bottom: 30px;
-      font-size: 28px;
-      filter: grayscale(.5);
+      right: 18px;
+      top: 22px;
+      width: 92px;
+      height: 92px;
       opacity: 0;
       transform: translateY(8px);
       transition: .2s;
     }
 
-    .poop.show {
+    .enemy.show {
       opacity: 1;
       transform: translateY(0);
     }
 
-    .spark {
-      position: absolute;
-      right: 44px;
-      top: 52px;
-      color: var(--screen-dark);
-      font-family: "Courier New", monospace;
-      font-weight: 900;
-      opacity: 0;
+    .tofu-svg {
+      width: min(80%, 250px);
+      aspect-ratio: 1;
+      filter: drop-shadow(8px 12px 0 rgba(38,61,43,.18));
+      animation: breathe 1.7s steps(2, end) infinite;
     }
 
-    .spark.show {
-      animation: pop .7s ease-out;
-    }
-
-    @keyframes bop {
+    @keyframes breathe {
       0%, 100% { transform: translateY(0) scaleX(1); }
       50% { transform: translateY(-5px) scaleX(.98); }
     }
 
-    @keyframes pop {
-      0% { opacity: 0; transform: translateY(8px) scale(.8); }
+    .float {
+      position: absolute;
+      right: 40px;
+      top: 62px;
+      opacity: 0;
+      color: var(--screen-dark);
+      font: 900 14px/1 "Courier New", monospace;
+    }
+
+    .float.show {
+      animation: float-pop .8s ease-out;
+    }
+
+    @keyframes float-pop {
+      0% { opacity: 0; transform: translateY(8px) scale(.85); }
       35% { opacity: 1; }
-      100% { opacity: 0; transform: translateY(-16px) scale(1.2); }
+      100% { opacity: 0; transform: translateY(-18px) scale(1.16); }
     }
 
     .meters {
@@ -181,27 +179,27 @@
 
     .meter {
       display: grid;
-      grid-template-columns: 64px 1fr 38px;
-      align-items: center;
+      grid-template-columns: 58px 1fr 36px;
       gap: 8px;
-      color: #fff8dc;
+      align-items: center;
+      color: #fff8df;
       font-weight: 900;
       font-size: 13px;
     }
 
     .bar {
       height: 15px;
-      background: #8d2431;
       border: 2px solid var(--line);
+      background: #183f49;
       overflow: hidden;
     }
 
     .bar span {
       display: block;
-      height: 100%;
       width: 50%;
-      background: var(--yellow);
-      transition: width .25s ease;
+      height: 100%;
+      background: var(--gold);
+      transition: width .2s ease;
     }
 
     .controls {
@@ -214,15 +212,15 @@
       min-height: 48px;
       border: 3px solid var(--line);
       border-radius: 6px;
-      background: #fff8dc;
+      background: #fff8df;
       color: var(--ink);
-      font: 900 14px/1 "Yu Gothic UI", "Meiryo", sans-serif;
       box-shadow: 0 5px 0 var(--line);
       cursor: pointer;
+      font: 900 14px/1.1 "Yu Gothic UI", "Meiryo", sans-serif;
       display: inline-flex;
-      justify-content: center;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      gap: 7px;
       touch-action: manipulation;
     }
 
@@ -239,27 +237,21 @@
 
     .panel {
       background: var(--paper);
-      border: 4px solid var(--line);
-      border-radius: 8px;
-      box-shadow: 0 12px 0 rgba(24,32,42,.16);
       padding: 16px;
       display: grid;
       gap: 14px;
-      align-content: start;
     }
 
-    h1, h2, p { margin: 0; }
+    h1, h2, h3, p { margin: 0; }
 
     h1 {
-      font-size: clamp(28px, 5vw, 54px);
+      font-size: clamp(28px, 5vw, 52px);
       line-height: .95;
       letter-spacing: 0;
     }
 
-    h2 {
-      font-size: 18px;
-      letter-spacing: 0;
-    }
+    h2 { font-size: 18px; }
+    h3 { font-size: 15px; }
 
     .summary {
       color: var(--muted);
@@ -267,25 +259,42 @@
       font-weight: 700;
     }
 
-    .grid {
+    .hero-row {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: minmax(0, 1fr) 132px;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .hero-row img {
+      width: 132px;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border: 3px solid var(--line);
+      border-radius: 8px;
+      background: white;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 10px;
     }
 
-    .stat {
+    .stat,
+    .quest,
+    .boss,
+    .log {
       border: 3px solid var(--line);
-      background: #fffdf5;
       border-radius: 6px;
-      padding: 10px;
-      min-height: 74px;
-      display: grid;
-      gap: 4px;
+      background: #fffdf7;
     }
 
-    .stat b {
-      font-size: 22px;
-      color: var(--blue);
+    .stat {
+      min-height: 78px;
+      padding: 10px;
+      display: grid;
+      gap: 4px;
     }
 
     .stat span {
@@ -294,34 +303,60 @@
       font-weight: 900;
     }
 
-    .log {
-      border: 3px solid var(--line);
-      background: #fffdf5;
-      border-radius: 6px;
-      padding: 10px;
-      min-height: 154px;
-      max-height: 210px;
-      overflow: auto;
-      font-size: 13px;
-      line-height: 1.55;
-      color: #2f3844;
+    .stat b {
+      color: var(--blue);
+      font-size: 22px;
     }
 
-    .log p + p { margin-top: 7px; }
+    .quest,
+    .boss {
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
 
-    .evo-row {
+    .row {
       display: grid;
       grid-template-columns: 1fr auto;
       gap: 10px;
       align-items: center;
-      border-top: 2px dashed rgba(24,32,42,.28);
-      padding-top: 12px;
     }
 
-    .evo-row button {
-      min-width: 110px;
-      background: #d7ecff;
+    .row button {
+      min-width: 120px;
+      background: #e7f4d3;
     }
+
+    .boss .row button {
+      background: #ffd8cf;
+    }
+
+    .boss-meter {
+      height: 20px;
+      border: 3px solid var(--line);
+      background: #efe2d2;
+      overflow: hidden;
+    }
+
+    .boss-meter span {
+      display: block;
+      height: 100%;
+      width: 100%;
+      background: var(--accent);
+      transition: width .25s ease;
+    }
+
+    .log {
+      min-height: 150px;
+      max-height: 220px;
+      overflow: auto;
+      padding: 10px;
+      color: #333a40;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .log p + p { margin-top: 7px; }
 
     .save-row {
       display: flex;
@@ -332,7 +367,6 @@
     .save-row button {
       min-height: 42px;
       flex: 1 1 130px;
-      background: #e8f2cc;
     }
 
     .toast {
@@ -342,13 +376,13 @@
       transform: translateX(-50%) translateY(20px);
       opacity: 0;
       background: var(--ink);
-      color: #fff8dc;
-      border: 3px solid #fff8dc;
-      padding: 10px 14px;
+      color: #fff8df;
+      border: 3px solid #fff8df;
       border-radius: 6px;
+      padding: 10px 14px;
       font-weight: 900;
-      transition: .2s;
       pointer-events: none;
+      transition: .2s;
       max-width: min(92vw, 460px);
       text-align: center;
     }
@@ -358,85 +392,100 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    @media (max-width: 820px) {
-      body { padding: 12px; }
+    @media (max-width: 900px) {
       main { grid-template-columns: 1fr; }
-      .device { min-height: auto; }
-      .screen { min-height: 300px; }
-      .grid { grid-template-columns: 1fr 1fr; }
-      h1 { font-size: 34px; }
     }
 
-    @media (max-width: 420px) {
-      .controls,
-      .grid { grid-template-columns: 1fr; }
-      .meter { grid-template-columns: 58px 1fr 34px; }
-      button { font-size: 13px; }
+    @media (max-width: 560px) {
+      body { padding: 10px; }
+      .hero-row { grid-template-columns: 1fr; }
+      .hero-row img { width: 112px; }
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .controls { grid-template-columns: 1fr; }
+      .row { grid-template-columns: 1fr; }
+      .row button { width: 100%; }
     }
   </style>
 </head>
 <body>
   <main>
-    <section class="device" aria-label="育成端末">
+    <section class="device" aria-label="豆腐育成端末">
       <div class="brand">
-        <span>Bit Buddy</span>
+        <span>Tofu Quest</span>
         <span class="speaker" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
       </div>
 
       <div class="screen">
         <div class="lcd-top">
-          <span id="petName">MAME-01</span>
+          <span id="tofuName">ベビー豆腐</span>
           <span id="clock">00:00</span>
         </div>
-        <div class="pet-stage">
-          <svg id="petSvg" class="pet-svg" viewBox="0 0 160 160" role="img" aria-label="育成モンスター"></svg>
-          <div id="poop" class="poop" aria-hidden="true">■</div>
-          <div id="spark" class="spark">+1</div>
+        <div class="stage">
+          <svg id="bossSvg" class="enemy" viewBox="0 0 120 120" role="img" aria-label="ボス"></svg>
+          <svg id="tofuSvg" class="tofu-svg" viewBox="0 0 180 180" role="img" aria-label="豆腐キャラ"></svg>
+          <div id="float" class="float">+1</div>
         </div>
         <div class="lcd-bottom">
-          <span id="moodText">きげん: ふつう</span>
+          <span id="moodText">状態: ふにゃふにゃ</span>
           <span id="ageText">0日目</span>
         </div>
       </div>
 
       <div class="meters">
-        <div class="meter"><span>まんぷく</span><div class="bar"><span id="hungerBar"></span></div><span id="hungerVal">50</span></div>
-        <div class="meter"><span>きげん</span><div class="bar"><span id="happyBar"></span></div><span id="happyVal">50</span></div>
-        <div class="meter"><span>元気</span><div class="bar"><span id="energyBar"></span></div><span id="energyVal">50</span></div>
+        <div class="meter"><span>満腹</span><div class="bar"><span id="hungerBar"></span></div><span id="hungerVal">50</span></div>
+        <div class="meter"><span>集中</span><div class="bar"><span id="focusBar"></span></div><span id="focusVal">50</span></div>
+        <div class="meter"><span>勇気</span><div class="bar"><span id="courageBar"></span></div><span id="courageVal">50</span></div>
         <div class="meter"><span>清潔</span><div class="bar"><span id="cleanBar"></span></div><span id="cleanVal">50</span></div>
       </div>
 
       <div class="controls">
-        <button id="feedBtn" title="食事">● ごはん</button>
-        <button id="playBtn" title="遊ぶ">◆ あそぶ</button>
-        <button id="trainBtn" title="訓練">▲ くんれん</button>
-        <button id="cleanBtn" title="掃除">✚ そうじ</button>
+        <button id="feedBtn">ごはん</button>
+        <button id="codeBtn">コード修行</button>
+        <button id="trainBtn">筋トレ</button>
+        <button id="cleanBtn">身だしなみ</button>
       </div>
     </section>
 
     <section class="panel">
-      <div>
-        <h1>ポケット育成アイドル</h1>
-        <p class="summary">ブラウザを閉じていても時間経過を計算します。世話を焼きすぎても放置しすぎても成長が変わる、携帯育成機風の小さなゲームです。</p>
-      </div>
-
-      <div class="grid">
-        <div class="stat"><span>エネルギービット</span><b id="bits">0</b></div>
-        <div class="stat"><span>毎秒生産</span><b id="rate">0.0</b></div>
-        <div class="stat"><span>訓練値</span><b id="power">0</b></div>
-        <div class="stat"><span>世話ミス</span><b id="misses">0</b></div>
-      </div>
-
-      <div class="evo-row">
+      <div class="hero-row">
         <div>
-          <h2 id="stageName">幼体</h2>
-          <p class="summary" id="evoHint">ビット30、訓練5、きげん40以上で進化できます。</p>
+          <h1>Tofu Quest Idle</h1>
+          <p class="summary">豆腐キャラを赤ちゃんから育て、修行で力をつけ、最終的にバグの魔王と戦う放置育成ゲームです。</p>
         </div>
-        <button id="evolveBtn">進化</button>
+        <img src="assets/tofu-hero.png" alt="豆腐キャラのプロフィール画像">
+      </div>
+
+      <div class="stats">
+        <div class="stat"><span>ひらめき</span><b id="ideas">0</b></div>
+        <div class="stat"><span>毎秒</span><b id="rate">0.0</b></div>
+        <div class="stat"><span>修行値</span><b id="power">0</b></div>
+        <div class="stat"><span>勝利</span><b id="wins">0</b></div>
+      </div>
+
+      <div class="quest">
+        <div class="row">
+          <div>
+            <h2 id="stageName">第1形態: ベビー豆腐</h2>
+            <p class="summary" id="evoHint">ひらめき30、修行値5、集中40以上で進化できます。</p>
+          </div>
+          <button id="evolveBtn">進化する</button>
+        </div>
+      </div>
+
+      <div class="boss">
+        <div class="row">
+          <div>
+            <h2 id="bossTitle">ラスボス: バグの魔王</h2>
+            <p class="summary" id="bossHint">最終形態になると挑戦できます。勇気と修行値が攻撃力になります。</p>
+          </div>
+          <button id="fightBtn">挑戦</button>
+        </div>
+        <div class="boss-meter" aria-label="ボスHP"><span id="bossHpBar"></span></div>
+        <p class="summary" id="bossHpText">HP 999 / 999</p>
       </div>
 
       <div>
-        <h2>ログ</h2>
+        <h2>冒険ログ</h2>
         <div class="log" id="log" aria-live="polite"></div>
       </div>
 
@@ -450,41 +499,49 @@
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script>
-    const SAVE_KEY = "bit-buddy-idle-v1";
-    const stages = [
-      { name: "幼体", pet: "MAME-01", minBits: 30, minPower: 5, rate: .35, color: "#213620", accent: "#4d6b33" },
-      { name: "成長期", pet: "KORO-12", minBits: 140, minPower: 24, rate: .9, color: "#1e3f68", accent: "#2b8176" },
-      { name: "成熟期", pet: "GIGA-70", minBits: 600, minPower: 90, rate: 2.1, color: "#41265f", accent: "#d9474f" },
-      { name: "完全体", pet: "OMEGA-99", minBits: Infinity, minPower: Infinity, rate: 4.4, color: "#202735", accent: "#f0bd49" }
+    const SAVE_KEY = "tofu-quest-idle-v1";
+    const legacyKey = "bit-buddy-idle-v1";
+
+    const forms = [
+      { name: "ベビー豆腐", title: "第1形態: ベビー豆腐", idea: 30, power: 5, rate: .35, body: "#fffdf7", shirt: "#9bc6d0", accent: "#f3b18f", scale: .82 },
+      { name: "見習い豆腐", title: "第2形態: 見習い豆腐", idea: 120, power: 24, rate: .85, body: "#fffaf0", shirt: "#4b7e8e", accent: "#e8b94d", scale: .92 },
+      { name: "エンジニア豆腐", title: "第3形態: エンジニア豆腐", idea: 420, power: 75, rate: 1.8, body: "#fffdf7", shirt: "#2d465a", accent: "#cf533d", scale: 1.02 },
+      { name: "守護者豆腐", title: "最終形態: 守護者豆腐", idea: Infinity, power: Infinity, rate: 3.8, body: "#fffaf0", shirt: "#273745", accent: "#e8b94d", scale: 1.12 }
     ];
 
     const state = {
-      bits: 0,
-      hunger: 66,
-      happy: 58,
-      energy: 70,
-      clean: 80,
+      ideas: 0,
+      hunger: 70,
+      focus: 55,
+      courage: 45,
+      clean: 82,
       power: 0,
-      misses: 0,
-      stage: 0,
+      form: 0,
       bornAt: Date.now(),
       lastTick: Date.now(),
-      log: ["たまごから小さなデータ生命体が生まれた。"]
+      bossHp: 999,
+      wins: 0,
+      log: ["小さな豆腐が目を覚ました。いつかバグの魔王を倒す旅が始まる。"]
     };
 
-    const $ = (id) => document.getElementById(id);
+    const $ = id => document.getElementById(id);
     const clamp = (value, min = 0, max = 100) => Math.max(min, Math.min(max, value));
-    const fmt = (num) => Math.floor(num).toLocaleString("ja-JP");
+    const fmt = num => Math.floor(num).toLocaleString("ja-JP");
 
     function load() {
       try {
         const saved = JSON.parse(localStorage.getItem(SAVE_KEY));
-        if (!saved) return;
-        Object.assign(state, saved);
-        state.log = Array.isArray(saved.log) ? saved.log.slice(-8) : state.log;
-        applyOfflineProgress();
+        if (saved) {
+          Object.assign(state, saved);
+          state.log = Array.isArray(saved.log) ? saved.log.slice(0, 9) : state.log;
+          applyOfflineProgress();
+          return;
+        }
+        if (localStorage.getItem(legacyKey)) {
+          addLog("旧バージョンの記録を見つけました。豆腐クエストとして新しく始まります。");
+        }
       } catch {
-        addLog("セーブデータの読み込みに失敗したので、新しい育成を始めます。");
+        addLog("セーブデータの読み込みに失敗しました。新しい豆腐で始めます。");
       }
     }
 
@@ -498,81 +555,84 @@
       const now = Date.now();
       const elapsed = Math.max(0, (now - state.lastTick) / 1000);
       if (elapsed < 3) return;
-      const capped = Math.min(elapsed, 60 * 60 * 8);
+      const capped = Math.min(elapsed, 60 * 60 * 10);
       tick(capped, true);
-      addLog(`${Math.floor(capped / 60)}分ぶんの放置成長を受け取りました。`);
+      addLog(`${Math.floor(capped / 60)}分ぶん、豆腐は自主練していました。`);
       state.lastTick = now;
     }
 
+    function careScore() {
+      return (state.hunger + state.focus + state.courage + state.clean) / 400;
+    }
+
     function rate() {
-      const care = (state.hunger + state.happy + state.energy + state.clean) / 400;
-      const missPenalty = Math.max(.25, 1 - state.misses * .025);
-      return stages[state.stage].rate * (.45 + care) * missPenalty;
+      return forms[state.form].rate * (.45 + careScore()) * (state.wins ? 1 + state.wins * .15 : 1);
     }
 
     function tick(seconds, offline = false) {
-      state.bits += rate() * seconds;
-      state.hunger = clamp(state.hunger - seconds * .22);
-      state.happy = clamp(state.happy - seconds * .12);
-      state.energy = clamp(state.energy + seconds * .08);
-      state.clean = clamp(state.clean - seconds * .08);
+      state.ideas += rate() * seconds;
+      state.hunger = clamp(state.hunger - seconds * .18);
+      state.focus = clamp(state.focus - seconds * .1);
+      state.courage = clamp(state.courage + seconds * .05);
+      state.clean = clamp(state.clean - seconds * .075);
 
-      if (!offline && Math.random() < seconds * .012) {
-        state.clean = clamp(state.clean - 14);
-        addLog("床がよごれた。掃除すると調子が戻ります。");
-      }
-
-      const bad = [state.hunger, state.happy, state.clean].some(v => v <= 3);
-      if (bad && Math.random() < seconds * .02) {
-        state.misses += 1;
-        state.happy = clamp(state.happy + 8);
-        addLog("世話ミス。少しすねています。");
+      if (!offline && Math.random() < seconds * .01) {
+        state.focus = clamp(state.focus - 10);
+        addLog("謎のエラーで集中が少し乱れた。");
       }
     }
 
     function addLog(text) {
       state.log.unshift(text);
-      state.log = state.log.slice(0, 8);
+      state.log = state.log.slice(0, 9);
     }
 
     function toast(text) {
       const el = $("toast");
       el.textContent = text;
       el.classList.add("show");
-      window.clearTimeout(toast.timer);
-      toast.timer = window.setTimeout(() => el.classList.remove("show"), 1400);
+      clearTimeout(toast.timer);
+      toast.timer = setTimeout(() => el.classList.remove("show"), 1400);
+    }
+
+    function pop(text) {
+      const el = $("float");
+      el.textContent = text;
+      el.classList.remove("show");
+      void el.offsetWidth;
+      el.classList.add("show");
     }
 
     function action(kind) {
       if (kind === "feed") {
         state.hunger = clamp(state.hunger + 24);
-        state.clean = clamp(state.clean - 5);
-        addLog("ごはんを食べた。まんぷくが上がった。");
-        pop("+ごはん");
+        state.clean = clamp(state.clean - 4);
+        addLog("やさしい味噌汁を飲んだ。満腹が上がった。");
+        pop("+満腹");
       }
-      if (kind === "play") {
-        state.happy = clamp(state.happy + 20);
-        state.energy = clamp(state.energy - 8);
-        state.bits += 3 + state.stage;
-        addLog("一緒に遊んだ。少しビットも見つけた。");
-        pop("+3");
+      if (kind === "code") {
+        state.focus = clamp(state.focus + 22);
+        state.hunger = clamp(state.hunger - 5);
+        state.ideas += 8 + state.form * 5;
+        addLog("コード修行でひらめきが増えた。");
+        pop("+ひらめき");
       }
       if (kind === "train") {
-        if (state.energy < 12) {
-          toast("元気が足りません");
+        if (state.hunger < 12) {
+          toast("満腹が足りません");
           return;
         }
-        state.power += 1 + state.stage;
-        state.energy = clamp(state.energy - 16);
-        state.happy = clamp(state.happy - 3);
-        state.bits += 8 + state.stage * 4;
-        addLog("訓練成功。訓練値とビットが増えた。");
-        pop("+訓練");
+        state.power += 1 + state.form;
+        state.courage = clamp(state.courage + 12);
+        state.hunger = clamp(state.hunger - 12);
+        state.focus = clamp(state.focus - 4);
+        addLog("筋トレ成功。豆腐なのに芯が強くなった。");
+        pop("+修行");
       }
       if (kind === "clean") {
         state.clean = 100;
-        state.happy = clamp(state.happy + 5);
-        addLog("すっきり掃除した。");
+        state.focus = clamp(state.focus + 6);
+        addLog("身だしなみを整えた。角がきれいに光っている。");
         pop("OK");
       }
       render();
@@ -580,23 +640,59 @@
     }
 
     function evolve() {
-      const next = stages[state.stage + 1];
+      const next = forms[state.form + 1];
       if (!next) {
-        toast("これ以上はまだ進化しません");
+        toast("最終形態です");
         return;
       }
-      const can = state.bits >= next.minBits && state.power >= next.minPower && state.happy >= 40;
+      const can = state.ideas >= next.idea && state.power >= next.power && state.focus >= 40;
       if (!can) {
         toast("進化条件が足りません");
         return;
       }
-      state.bits -= next.minBits;
-      state.stage += 1;
+      state.ideas -= next.idea;
+      state.form += 1;
       state.hunger = clamp(state.hunger + 18);
-      state.happy = clamp(state.happy + 18);
-      state.energy = 100;
-      addLog(`${next.pet} に進化した。`);
+      state.focus = clamp(state.focus + 16);
+      state.courage = clamp(state.courage + 14);
+      state.clean = 100;
+      addLog(`${next.name} に進化した。ボスへの道が近づいた。`);
       pop("EVOLVE");
+      render();
+      save();
+    }
+
+    function fightBoss() {
+      if (state.form < forms.length - 1) {
+        toast("最終形態で挑戦できます");
+        return;
+      }
+      if (state.hunger < 20 || state.focus < 20 || state.courage < 30) {
+        toast("状態を整えてから挑戦しよう");
+        return;
+      }
+
+      const attack = Math.floor(34 + state.power * .9 + state.courage * .8 + Math.random() * 34);
+      const counter = Math.floor(10 + Math.random() * 22);
+      state.bossHp = Math.max(0, state.bossHp - attack);
+      state.hunger = clamp(state.hunger - 10);
+      state.focus = clamp(state.focus - counter * .45);
+      state.courage = clamp(state.courage - counter * .25);
+      addLog(`守護者豆腐の攻撃。バグの魔王に ${attack} ダメージ。`);
+      pop(`-${attack}`);
+
+      if (state.bossHp <= 0) {
+        state.wins += 1;
+        state.ideas += 500 + state.wins * 250;
+        state.power += 20;
+        state.bossHp = 999 + state.wins * 350;
+        state.hunger = 100;
+        state.focus = 100;
+        state.courage = 100;
+        state.clean = 100;
+        addLog("バグの魔王を倒した。世界に平和なデプロイが戻った。");
+        toast("ボス撃破");
+      }
       render();
       save();
     }
@@ -607,94 +703,113 @@
       location.reload();
     }
 
-    function pop(text) {
-      const el = $("spark");
-      el.textContent = text;
-      el.classList.remove("show");
-      void el.offsetWidth;
-      el.classList.add("show");
+    function tofuSvg(formIndex) {
+      const form = forms[formIndex];
+      const crown = formIndex >= 3 ? `<rect x="56" y="20" width="68" height="12" fill="${form.accent}"/><rect x="64" y="8" width="10" height="18" fill="${form.accent}"/><rect x="88" y="8" width="10" height="18" fill="${form.accent}"/><rect x="112" y="8" width="10" height="18" fill="${form.accent}"/>` : "";
+      const laptop = formIndex >= 2 ? `<rect x="34" y="124" width="112" height="12" fill="#77716b"/><rect x="48" y="96" width="72" height="34" fill="#9c9690"/><rect x="54" y="102" width="60" height="20" fill="#d9e6ea"/>` : "";
+      const cape = formIndex >= 3 ? `<rect x="116" y="86" width="28" height="62" fill="#5b2f45"/><rect x="36" y="86" width="28" height="62" fill="#5b2f45"/>` : "";
+      const badge = formIndex >= 1 ? `<rect x="84" y="106" width="12" height="12" fill="${form.accent}"/>` : "";
+      return `
+        <g transform="translate(90 92) scale(${form.scale}) translate(-90 -92)">
+          ${cape}
+          <rect x="56" y="82" width="68" height="58" fill="${form.shirt}"/>
+          <rect x="46" y="92" width="18" height="44" fill="${form.shirt}"/>
+          <rect x="116" y="92" width="18" height="44" fill="${form.shirt}"/>
+          ${badge}
+          ${crown}
+          <polygon points="48,42 96,22 132,34 84,54" fill="${form.body}" stroke="#4a382c" stroke-width="4" stroke-linejoin="round"/>
+          <polygon points="84,54 132,34 138,84 90,108" fill="#f7f1e7" stroke="#4a382c" stroke-width="4" stroke-linejoin="round"/>
+          <polygon points="48,42 84,54 90,108 54,98" fill="#fffdf8" stroke="#4a382c" stroke-width="4" stroke-linejoin="round"/>
+          <rect x="64" y="70" width="10" height="18" rx="5" fill="#4a382c"/>
+          <rect x="94" y="70" width="10" height="18" rx="5" fill="#4a382c"/>
+          <rect x="67" y="72" width="4" height="6" rx="2" fill="#fffaf0"/>
+          <rect x="97" y="72" width="4" height="6" rx="2" fill="#fffaf0"/>
+          <rect x="58" y="88" width="10" height="4" fill="#f3b18f"/>
+          <rect x="105" y="88" width="10" height="4" fill="#f3b18f"/>
+          ${laptop}
+        </g>
+      `;
     }
 
-    function petSvg(stage) {
-      const s = stages[stage];
-      const horn = stage >= 1 ? `<rect x="70" y="24" width="20" height="18" fill="${s.accent}"/><rect x="76" y="14" width="8" height="12" fill="${s.accent}"/>` : "";
-      const wings = stage >= 2 ? `<rect x="18" y="70" width="30" height="34" fill="${s.accent}"/><rect x="112" y="70" width="30" height="34" fill="${s.accent}"/>` : "";
-      const crown = stage >= 3 ? `<rect x="54" y="20" width="52" height="12" fill="#f0bd49"/><rect x="62" y="10" width="10" height="16" fill="#f0bd49"/><rect x="88" y="10" width="10" height="16" fill="#f0bd49"/>` : "";
+    function bossSvg() {
       return `
-        ${wings}${horn}${crown}
-        <rect x="44" y="48" width="72" height="72" fill="${s.color}"/>
-        <rect x="36" y="64" width="16" height="32" fill="${s.color}"/>
-        <rect x="108" y="64" width="16" height="32" fill="${s.color}"/>
-        <rect x="56" y="38" width="48" height="18" fill="${s.color}"/>
-        <rect x="58" y="70" width="12" height="12" fill="#f6f1e4"/>
-        <rect x="90" y="70" width="12" height="12" fill="#f6f1e4"/>
-        <rect x="62" y="74" width="8" height="8" fill="#18202a"/>
-        <rect x="90" y="74" width="8" height="8" fill="#18202a"/>
-        <rect x="70" y="96" width="20" height="8" fill="${s.accent}"/>
-        <rect x="52" y="120" width="18" height="16" fill="${s.color}"/>
-        <rect x="90" y="120" width="18" height="16" fill="${s.color}"/>
-        <rect x="46" y="136" width="26" height="8" fill="${s.color}"/>
-        <rect x="88" y="136" width="26" height="8" fill="${s.color}"/>
+        <rect x="22" y="28" width="76" height="64" fill="#4a2230" stroke="#2b2926" stroke-width="5"/>
+        <rect x="14" y="46" width="20" height="16" fill="#cf533d" stroke="#2b2926" stroke-width="4"/>
+        <rect x="86" y="46" width="20" height="16" fill="#cf533d" stroke="#2b2926" stroke-width="4"/>
+        <rect x="38" y="48" width="12" height="14" fill="#fffaf0"/>
+        <rect x="70" y="48" width="12" height="14" fill="#fffaf0"/>
+        <rect x="42" y="52" width="8" height="10" fill="#2b2926"/>
+        <rect x="70" y="52" width="8" height="10" fill="#2b2926"/>
+        <rect x="45" y="74" width="30" height="6" fill="#e8b94d"/>
+        <rect x="24" y="18" width="14" height="18" fill="#cf533d" stroke="#2b2926" stroke-width="4"/>
+        <rect x="82" y="18" width="14" height="18" fill="#cf533d" stroke="#2b2926" stroke-width="4"/>
       `;
     }
 
     function mood() {
-      const avg = (state.hunger + state.happy + state.energy + state.clean) / 4;
-      if (avg > 78) return "さいこう";
-      if (avg > 52) return "ふつう";
-      if (avg > 25) return "しょんぼり";
-      return "ピンチ";
+      const avg = careScore() * 100;
+      if (avg > 80) return "角までぷるぷる";
+      if (avg > 55) return "いい感じ";
+      if (avg > 30) return "少し崩れそう";
+      return "冷蔵庫に戻りたい";
     }
 
     function render() {
-      const current = stages[state.stage];
-      const next = stages[state.stage + 1];
-      $("petName").textContent = current.pet;
+      const form = forms[state.form];
+      const next = forms[state.form + 1];
+      const maxBossHp = 999 + state.wins * 350;
+      $("tofuName").textContent = form.name;
       $("clock").textContent = new Date().toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" });
       $("ageText").textContent = `${Math.floor((Date.now() - state.bornAt) / 86400000)}日目`;
-      $("moodText").textContent = `きげん: ${mood()}`;
-      $("petSvg").innerHTML = petSvg(state.stage);
-      $("poop").classList.toggle("show", state.clean < 35);
+      $("moodText").textContent = `状態: ${mood()}`;
+      $("tofuSvg").innerHTML = tofuSvg(state.form);
+      $("bossSvg").innerHTML = bossSvg();
+      $("bossSvg").classList.toggle("show", state.form >= forms.length - 1);
 
-      [["hunger", state.hunger], ["happy", state.happy], ["energy", state.energy], ["clean", state.clean]].forEach(([key, value]) => {
+      [["hunger", state.hunger], ["focus", state.focus], ["courage", state.courage], ["clean", state.clean]].forEach(([key, value]) => {
         $(`${key}Bar`).style.width = `${clamp(value)}%`;
         $(`${key}Val`).textContent = Math.round(value);
       });
 
-      $("bits").textContent = fmt(state.bits);
+      $("ideas").textContent = fmt(state.ideas);
       $("rate").textContent = rate().toFixed(1);
       $("power").textContent = fmt(state.power);
-      $("misses").textContent = state.misses;
-      $("stageName").textContent = current.name;
+      $("wins").textContent = state.wins;
+      $("stageName").textContent = form.title;
       $("log").innerHTML = state.log.map(item => `<p>${item}</p>`).join("");
 
       if (next) {
-        $("evoHint").textContent = `ビット${fmt(next.minBits)}、訓練${fmt(next.minPower)}、きげん40以上で ${next.name} に進化できます。`;
-        $("evolveBtn").disabled = !(state.bits >= next.minBits && state.power >= next.minPower && state.happy >= 40);
+        $("evoHint").textContent = `ひらめき${fmt(next.idea)}、修行値${fmt(next.power)}、集中40以上で ${next.name} に進化できます。`;
+        $("evolveBtn").disabled = !(state.ideas >= next.idea && state.power >= next.power && state.focus >= 40);
       } else {
-        $("evoHint").textContent = "現在のバージョンで到達できる最終進化です。放置収入を伸ばして記録を狙えます。";
+        $("evoHint").textContent = "最終形態です。状態を整えてバグの魔王に挑戦しましょう。";
         $("evolveBtn").disabled = true;
       }
+
+      $("fightBtn").disabled = state.form < forms.length - 1;
+      $("bossHpBar").style.width = `${(state.bossHp / maxBossHp) * 100}%`;
+      $("bossHpText").textContent = `HP ${fmt(state.bossHp)} / ${fmt(maxBossHp)}`;
     }
 
     $("feedBtn").addEventListener("click", () => action("feed"));
-    $("playBtn").addEventListener("click", () => action("play"));
+    $("codeBtn").addEventListener("click", () => action("code"));
     $("trainBtn").addEventListener("click", () => action("train"));
     $("cleanBtn").addEventListener("click", () => action("clean"));
     $("evolveBtn").addEventListener("click", evolve);
+    $("fightBtn").addEventListener("click", fightBoss);
     $("saveBtn").addEventListener("click", () => save(true));
     $("resetBtn").addEventListener("click", resetGame);
 
     load();
     render();
-    window.setInterval(() => {
+    setInterval(() => {
       const now = Date.now();
       const seconds = Math.min(10, (now - state.lastTick) / 1000);
       state.lastTick = now;
       tick(seconds);
       render();
     }, 1000);
-    window.setInterval(() => save(), 15000);
+    setInterval(() => save(), 15000);
   </script>
 </body>
 </html>
